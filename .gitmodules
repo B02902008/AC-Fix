@@ -1,0 +1,9 @@
+[submodule "server"]
+	path = server
+	url = https://github.com/B02902008/AC-Fix-server
+[submodule "client"]
+	path = client
+	url = https://github.com/B02902008/AC-Fix-client
+[submodule "sonar"]
+	path = sonar
+	url = https://github.com/B02902008/AC-Fix-sonar-customizer

@@ -1,0 +1,65 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+
+buildscript {
+    repositories {
+        maven { url 'https://plugins.gradle.org/m2/' }
+    }
+    dependencies {
+        classpath 'com.moowork.gradle:gradle-node-plugin:1.3.1'
+    }
+}
+
+plugins {
+    id 'java'
+}
+
+group 'selab.csie.ntu'
+version '1.0'
+
+project(':client') {
+
+    apply plugin: 'com.moowork.node'
+
+    node {
+        version = '13.0.0'
+        npmVersion = '6.12.0'
+        download = false
+        npmWorkDir = file("${project.buildDir}/npm")
+        nodeModulesDir = file("${project.projectDir}")
+    }
+
+    npm_install.onlyIf { !new File(project.projectDir, 'node_modules').exists() }
+
+    task clean(type: Delete) {
+        delete project.buildDir
+    }
+
+    task cleanAll(type: Delete) {
+        dependsOn clean
+        delete "${project.projectDir}/node_modules"
+    }
+
+    task removeProdVal(type: Delete) {
+        delete "${project.projectDir}/src/environments/environment.prod.ts"
+    }
+
+    task configProdVal(type: Copy) {
+        dependsOn removeProdVal
+        from "${rootProject.projectDir}/environment.prod.ts"
+        into "${project.projectDir}/src/environments"
+        filter(ReplaceTokens, tokens:[
+                SERVER_HOST_VAL: project.getProperties().get('acfix.server.host'),
+                SERVER_PORT_VAL: project.getProperties().get('acfix.server.port'),
+                SONAR_HOST_VAL: project.getProperties().get('acfix.sonar.host'),
+                SONAR_PORT_VAL: project.getProperties().get('acfix.sonar.port')
+        ])
+    }
+
+    task build(type: Exec) {
+        dependsOn configProdVal
+        dependsOn npm_install
+        workingDir project.projectDir
+        commandLine 'ng', 'build', '--prod', '--build-optimizer', "--output-path=${project.buildDir}/dist"
+    }
+
+}
