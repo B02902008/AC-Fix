@@ -1,11 +1,11 @@
-version: '3.8'
+version: '3.5'
 services:
   server:
     build: ./server
     ports:
       - "5566:8080"
     volumes:
-      - ACFixServerData:/opt/data
+      - ServerVolume:/opt/data
       - /var/run/docker.sock:/var/run/docker.sock
   client:
     build: ./client
@@ -16,7 +16,7 @@ services:
     ports:
       - "9000:9000"
     volumes:
-      - ACFixSonarData:/opt/sonarqube/data
+      - SonarVolume:/opt/sonarqube/data
 volumes:
-  ACFixServerData: {}
-  ACFixSonarData: {}
+  ServerVolume: {}
+  SonarVolume: {}
